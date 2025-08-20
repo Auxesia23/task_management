@@ -57,7 +57,7 @@ func (app *application) mount() fasthttp.RequestHandler {
 	r.Get("/metrics", monitor.New())
 	r.Get("/protected", middlewares.JWTAuthMiddleware, func(c *fiber.Ctx) error {
 		user := c.Locals("user").(*dto.AccessTokenClaims)
-		return c.SendString("Hello, " + user.FirstName + " " + user.LastName)
+		return c.SendString("Hello, " + user.FullName)
 	})
 
 	auth := r.Group("/auth")

@@ -15,14 +15,14 @@ type RefreshRequest struct {
 }
 
 type RefreshResponse struct {
-	AccessToken  string `json:"access_token"`
+	AccessToken string `json:"access_token"`
 }
 
 type AccessTokenClaims struct {
-	UserID    uuid.UUID `json:"user_id"`
-	Email     string    `json:"email"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
+	UserID   uuid.UUID `json:"user_id"`
+	Email    string    `json:"email"`
+	Username string    `json:"username"`
+	FullName string    `json:"full_name"`
 	jwt.RegisteredClaims
 }
 

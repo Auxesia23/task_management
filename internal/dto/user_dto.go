@@ -5,10 +5,10 @@ import (
 )
 
 type UserRegister struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
+	Username string `json:"first_name"`
+	FullName string `json:"last_name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type UserLogin struct {
@@ -17,8 +17,8 @@ type UserLogin struct {
 }
 
 type UserResponse struct {
-	ID        uuid.UUID `json:"id"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
-	Email     string    `json:"email"`
+	ID       uuid.UUID `json:"id"`
+	Username string    `json:"username"`
+	FullName string    `json:"full_name"`
+	Email    string    `json:"email"`
 }

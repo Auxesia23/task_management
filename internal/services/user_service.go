@@ -42,10 +42,10 @@ func (s *userService) UserRegister(ctx context.Context, user *dto.UserRegister) 
 	}
 
 	response := &dto.UserResponse{
-		ID:        createdUser.ID,
-		FirstName: createdUser.FirstName,
-		LastName:  createdUser.LastName,
-		Email:     createdUser.Email,
+		ID:       createdUser.ID,
+		Username: createdUser.Username,
+		FullName: createdUser.FullName,
+		Email:    createdUser.Email,
 	}
 	return response, nil
 }

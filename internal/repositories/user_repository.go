@@ -25,13 +25,13 @@ func NewUserRepository(db *sqlx.DB) UserRepository {
 
 func (r *userRepository) Create(ctx context.Context, user *dto.UserRegister) (*models.User, error) {
 	query := `
-		INSERT INTO users (first_name, last_name, email, password_hash)
+		INSERT INTO users (username, full_name, email, password_hash)
 		VALUES ($1, $2, $3, $4)
 		RETURNING *;
 	`
 
 	var createdUser models.User
-	if err := r.db.GetContext(ctx, &createdUser, query, user.FirstName, user.LastName, user.Email, user.Password); err != nil {
+	if err := r.db.GetContext(ctx, &createdUser, query, user.Username, user.FullName, user.Email, user.Password); err != nil {
 		return nil, errors.New("cannot create user")
 	}
 

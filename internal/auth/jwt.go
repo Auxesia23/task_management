@@ -16,10 +16,10 @@ func GenerateAccessToken(user *models.User) (string, error) {
 	secret = []byte(os.Getenv("JWT_ACCESS_SECRET"))
 
 	claims := &dto.AccessTokenClaims{
-		UserID:    user.ID,
-		Email:     user.Email,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
+		UserID:   user.ID,
+		Email:    user.Email,
+		Username: user.Username,
+		FullName: user.FullName,
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 15)),
