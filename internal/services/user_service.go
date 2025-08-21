@@ -13,6 +13,7 @@ type UserService interface {
 	UserRegister(ctx context.Context, user *dto.UserRegister) (*dto.UserResponse, error)
 	UserLogin(ctx context.Context, user *dto.UserLogin) (*dto.TokenResponse, error)
 	UserRefresh(ctx context.Context, refreshToken string) (*dto.RefreshResponse, error)
+	UserSearchByUsername(ctx context.Context, username *string) (*[]dto.UserResponse, error)
 }
 
 type userService struct {
@@ -100,4 +101,23 @@ func (s *userService) UserRefresh(ctx context.Context, refreshToken string) (*dt
 		AccessToken: accesToken,
 	}
 	return tokenResponse, nil
+}
+
+func (s *userService) UserSearchByUsername(ctx context.Context, username *string) (*[]dto.UserResponse, error) {
+	users, err := s.userRepo.GetByUsername(ctx, username)
+	if err != nil {
+		return nil, err
+	}
+
+	var response []dto.UserResponse
+	for _, user := range *users {
+		response = append(response, dto.UserResponse{
+			ID:       user.ID,
+			Username: user.Username,
+			FullName: user.FullName,
+			Email:    user.Email,
+		})
+	}
+
+	return &response, nil
 }

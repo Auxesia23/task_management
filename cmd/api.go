@@ -68,6 +68,11 @@ func (app *application) mount() fasthttp.RequestHandler {
 
 	}
 
+	users := r.Group("/users", middlewares.JWTAuthMiddleware)
+	{
+		users.Get("/", app.userHandler.SearchUserhandler)
+	}
+
 	projects := r.Group("/projects")
 	{
 		projects.Post("/", middlewares.JWTAuthMiddleware, app.projectHandler.CreateProjectHanlder)

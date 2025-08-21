@@ -5,8 +5,8 @@ import (
 )
 
 type UserRegister struct {
-	Username string `json:"first_name"`
-	FullName string `json:"last_name"`
+	Username string `json:"username"`
+	FullName string `json:"full_name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }

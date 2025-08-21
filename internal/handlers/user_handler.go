@@ -10,6 +10,7 @@ type UserHandler interface {
 	RegisterHandler(c *fiber.Ctx) error
 	LoginHandler(c *fiber.Ctx) error
 	RefreshHandler(c *fiber.Ctx) error
+	SearchUserhandler(c *fiber.Ctx) error
 }
 
 type userHandler struct {
@@ -91,5 +92,29 @@ func (h *userHandler) RefreshHandler(c *fiber.Ctx) error {
 		Status:  fiber.StatusOK,
 		Message: "Token refreshed successfully",
 		Data:    token,
+	})
+}
+
+func (h *userHandler) SearchUserhandler(c *fiber.Ctx) error {
+	q := c.Query("q")
+	if q == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
+			Status:  fiber.StatusBadRequest,
+			Message: "Query parameter is required",
+		})
+	}
+
+	users, err := h.userService.UserSearchByUsername(c.Context(), &q)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(dto.ErrorResponse{
+			Status:  fiber.StatusNotFound,
+			Message: err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.Response{
+		Status:  fiber.StatusOK,
+		Message: "User search successfully",
+		Data:    users,
 	})
 }
