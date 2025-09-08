@@ -17,6 +17,7 @@ type ProjectRepository interface {
 	ReadById(ctx context.Context, projectId *uuid.UUID) (*models.Project, error)
 	Update(ctx context.Context, project *dto.ProjectRequest, projectId *uuid.UUID, ownerId *uuid.UUID) (*models.Project, error)
 	Delete(ctx context.Context, projectId *uuid.UUID, userId *uuid.UUID) error
+	OwnerCheck(ctx context.Context, projectId, ownerId *uuid.UUID) (bool, error)
 }
 
 type projectRepository struct {
@@ -102,4 +103,18 @@ func (r *projectRepository) Delete(ctx context.Context, projectId *uuid.UUID, us
 		return errors.New("project not found")
 	}
 	return nil
+}
+
+func (r *projectRepository) OwnerCheck(ctx context.Context, projectId, ownerId *uuid.UUID) (bool, error) {
+	query := `
+		SELECT id FROM projects WHERE id = $1 AND owner_id = $2;
+		`
+	var id uuid.UUID
+	if err := r.db.GetContext(ctx, &id, query, projectId, ownerId); err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		return false, errors.New("project owner check failed")
+	}
+	return true, nil
 }

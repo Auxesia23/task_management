@@ -18,9 +18,10 @@ import (
 )
 
 type application struct {
-	cfg            config
-	userHandler    handlers.UserHandler
-	projectHandler handlers.ProjectHandler
+	cfg               config
+	userHandler       handlers.UserHandler
+	projectHandler    handlers.ProjectHandler
+	invitationHandler handlers.InvitationHandler
 }
 
 type config struct {
@@ -31,11 +32,17 @@ type config struct {
 	idleTimeout  time.Duration
 }
 
-func NewApplication(cfg config, userHandler handlers.UserHandler, projectHandler handlers.ProjectHandler) *application {
+func NewApplication(
+	cfg config,
+	userHandler handlers.UserHandler,
+	projectHandler handlers.ProjectHandler,
+	invitationHandler handlers.InvitationHandler,
+) *application {
 	return &application{
 		cfg,
 		userHandler,
 		projectHandler,
+		invitationHandler,
 	}
 }
 
@@ -80,6 +87,9 @@ func (app *application) mount() fasthttp.RequestHandler {
 		projects.Get("/:id", app.projectHandler.ReadProjectByIdHanlder)
 		projects.Put("/:id", middlewares.JWTAuthMiddleware, app.projectHandler.UpdateProjectHanlder)
 		projects.Delete("/:id", middlewares.JWTAuthMiddleware, app.projectHandler.DeleteProjectHanlder)
+
+		// Invitations
+		projects.Post("/:id/invitations/:user_id", middlewares.JWTAuthMiddleware, app.invitationHandler.CreateInvitationHandler)
 	}
 
 	return r.Handler()

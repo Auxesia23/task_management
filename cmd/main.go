@@ -25,14 +25,17 @@ func main() {
 	// Initialize Repositories
 	userRepository := repositories.NewUserRepository(db)
 	projectRepository := repositories.NewProjectRepository(db)
+	invitationRepository := repositories.NewInvitationRepository(db)
 
 	// Initialize Services
 	userService := services.NewUserService(userRepository)
 	projectService := services.NewProjectService(projectRepository)
+	invitationService := services.NewInvitationService(invitationRepository, projectRepository)
 
 	// Initialize Handlers
 	userHandler := handlers.NewUserHandler(userService)
 	projectHandler := handlers.NewProjectHandler(projectService)
+	invitationHandler := handlers.NewInvitationHandler(invitationService)
 
 	cfg := config{
 		name:         "Task Management",
@@ -42,7 +45,7 @@ func main() {
 		idleTimeout:  10 * time.Second,
 	}
 
-	app := NewApplication(cfg, userHandler, projectHandler)
+	app := NewApplication(cfg, userHandler, projectHandler, invitationHandler)
 	r := app.mount()
 	log.Fatal(app.run(r))
 }
