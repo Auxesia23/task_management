@@ -7,10 +7,10 @@ import (
 )
 
 type Invitation struct {
-	ID        uuid.UUID `db:"id"`
-	ProjectID uuid.UUID `db:"project_id"`
-	UserID    uuid.UUID `db:"user_id"`
-	InviterID uuid.UUID `db:"inviter_id"`
-	Status    string    `db:"status"`
-	CreatedAt time.Time `db:"created_at"`
+	ID           uuid.UUID `db:"id"`
+	ProjectName  string    `db:"project_name"`
+	UserEmail    string    `db:"user_email"`
+	InviterEmail string    `db:"inviter_email"`
+	Status       string    `db:"status"`
+	CreatedAt    time.Time `db:"created_at"`
 }

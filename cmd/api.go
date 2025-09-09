@@ -78,6 +78,7 @@ func (app *application) mount() fasthttp.RequestHandler {
 	users := r.Group("/users", middlewares.JWTAuthMiddleware)
 	{
 		users.Get("/", app.userHandler.SearchUserhandler)
+		users.Get("/invitations", app.invitationHandler.GetInvitationHandler)
 	}
 
 	projects := r.Group("/projects")
@@ -89,7 +90,7 @@ func (app *application) mount() fasthttp.RequestHandler {
 		projects.Delete("/:id", middlewares.JWTAuthMiddleware, app.projectHandler.DeleteProjectHanlder)
 
 		// Invitations
-		projects.Post("/:id/invitations/:user_id", middlewares.JWTAuthMiddleware, app.invitationHandler.CreateInvitationHandler)
+		projects.Post("/:id/invitations", middlewares.JWTAuthMiddleware, app.invitationHandler.CreateInvitationHandler)
 	}
 
 	return r.Handler()
