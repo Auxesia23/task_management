@@ -11,7 +11,8 @@ import (
 
 type InvitationService interface {
 	CreateInvitation(ctx context.Context, projectId, userId, inviterId *uuid.UUID) error
-	GetInvitation(ctx context.Context, userId *uuid.UUID) (*[]dto.InvitationResponse, error)
+	GetInvitation(ctx context.Context, userId *uuid.UUID, status *string) (*[]dto.InvitationResponse, error)
+	UpdateInvitation(ctx context.Context, userId, invitationId *uuid.UUID, status *string) error
 }
 
 type invitationService struct {
@@ -41,8 +42,8 @@ func (s *invitationService) CreateInvitation(ctx context.Context, projectId, use
 	return nil
 }
 
-func (s *invitationService) GetInvitation(ctx context.Context, userId *uuid.UUID) (*[]dto.InvitationResponse, error) {
-	invitations, err := s.invitationRepo.ReadByUser(ctx, userId)
+func (s *invitationService) GetInvitation(ctx context.Context, userId *uuid.UUID, status *string) (*[]dto.InvitationResponse, error) {
+	invitations, err := s.invitationRepo.ReadByUser(ctx, userId, status)
 	if err != nil {
 		return nil, err
 	}
@@ -59,4 +60,25 @@ func (s *invitationService) GetInvitation(ctx context.Context, userId *uuid.UUID
 		})
 	}
 	return &response, nil
+}
+
+func (s *invitationService) UpdateInvitation(ctx context.Context, userId, invitationId *uuid.UUID, status *string) error {
+	if status == nil {
+		return errors.New("status is required")
+	}
+	if *status != "accept" && *status != "reject" {
+		return errors.New("status must be accept/reject")
+	}
+
+	var newStatus string
+	switch *status {
+	case "accept":
+		newStatus = "accepted"
+	case "reject":
+		newStatus = "rejected"
+	}
+	if err := s.invitationRepo.Update(ctx, invitationId, userId, &newStatus); err != nil {
+		return err
+	}
+	return nil
 }

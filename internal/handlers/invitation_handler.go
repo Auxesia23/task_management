@@ -10,6 +10,7 @@ import (
 type Invitationhandler interface {
 	CreateInvitationHandler(ctx *fiber.Ctx) error
 	GetInvitationHandler(ctx *fiber.Ctx) error
+	UpdateInvitationHandler(ctx *fiber.Ctx) error
 }
 
 type InvitationHandler struct {
@@ -57,8 +58,9 @@ func (h *InvitationHandler) CreateInvitationHandler(c *fiber.Ctx) error {
 
 func (h *InvitationHandler) GetInvitationHandler(c *fiber.Ctx) error {
 	user := c.Locals("user").(*dto.AccessTokenClaims)
+	status := c.Query("status", "pending")
 
-	invitations, err := h.invitationService.GetInvitation(c.Context(), &user.UserID)
+	invitations, err := h.invitationService.GetInvitation(c.Context(), &user.UserID, &status)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Status:  fiber.StatusInternalServerError,
@@ -70,5 +72,30 @@ func (h *InvitationHandler) GetInvitationHandler(c *fiber.Ctx) error {
 		Status:  fiber.StatusOK,
 		Message: "Invitations get successfully",
 		Data:    invitations,
+	})
+}
+
+func (h *InvitationHandler) UpdateInvitationHandler(c *fiber.Ctx) error {
+	user := c.Locals("user").(*dto.AccessTokenClaims)
+	status := c.Query("status")
+	invitationId := c.Params("id")
+	parsedInvitationId, err := uuid.Parse(invitationId)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
+			Status:  fiber.StatusBadRequest,
+			Message: err.Error(),
+		})
+	}
+
+	if err := h.invitationService.UpdateInvitation(c.Context(), &user.UserID, &parsedInvitationId, &status); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
+			Status:  fiber.StatusBadRequest,
+			Message: err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.Response{
+		Status:  fiber.StatusOK,
+		Message: "Invitation accepted successfully",
 	})
 }

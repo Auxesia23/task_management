@@ -12,7 +12,8 @@ import (
 
 type InvitationRepository interface {
 	Create(ctx context.Context, projectId, userId, inviterId *uuid.UUID) error
-	ReadByUser(ctx context.Context, userId *uuid.UUID) (*[]models.Invitation, error)
+	ReadByUser(ctx context.Context, userId *uuid.UUID, status *string) (*[]models.Invitation, error)
+	Update(ctx context.Context, invitationId, userId *uuid.UUID, status *string) error
 }
 
 type invitationRepository struct {
@@ -42,7 +43,7 @@ func (r *invitationRepository) Create(ctx context.Context, projectId, userId, in
 	return nil
 }
 
-func (r *invitationRepository) ReadByUser(ctx context.Context, userId *uuid.UUID) (*[]models.Invitation, error) {
+func (r *invitationRepository) ReadByUser(ctx context.Context, userId *uuid.UUID, status *string) (*[]models.Invitation, error) {
 	query := `
 		SELECT 
 			i.id AS id,
@@ -55,13 +56,34 @@ func (r *invitationRepository) ReadByUser(ctx context.Context, userId *uuid.UUID
 		JOIN projects p ON p.id = i.project_id
 		JOIN users u ON u.id = i.user_id
 		JOIN users inviter ON inviter.id = i.inviter_id
-		WHERE i.user_id = $1;
+		WHERE i.user_id = $1 AND status = $2;
 		`
 
 	var invitations []models.Invitation
-	if err := r.db.SelectContext(ctx, &invitations, query, userId); err != nil {
+	if err := r.db.SelectContext(ctx, &invitations, query, userId, status); err != nil {
 		return nil, errors.New("error reading invitations")
 	}
 
 	return &invitations, nil
+}
+
+func (r *invitationRepository) Update(ctx context.Context, invitationId, userId *uuid.UUID, status *string) error {
+	query := `
+		UPDATE invitations 
+		SET status = $1
+		WHERE id = $2 AND user_id = $3 AND status = 'pending';
+		`
+
+	result, err := r.db.ExecContext(ctx, query, status, invitationId, userId)
+	if err != nil {
+		return errors.New("error updating invitation")
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return errors.New("error updating invitation")
+	}
+	if rows == 0 {
+		return errors.New("invitation not found or has been accepted/rejected")
+	}
+	return nil
 }

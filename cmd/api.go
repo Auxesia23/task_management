@@ -79,6 +79,7 @@ func (app *application) mount() fasthttp.RequestHandler {
 	{
 		users.Get("/", app.userHandler.SearchUserhandler)
 		users.Get("/invitations", app.invitationHandler.GetInvitationHandler)
+		users.Put("/invitations/:id", app.invitationHandler.UpdateInvitationHandler)
 	}
 
 	projects := r.Group("/projects")
